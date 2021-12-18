@@ -4,6 +4,8 @@
  <img src="https://img.shields.io/github/commit-activity/m/chrisluo5311/JwtDemo" alt="chrisluo5311" />
  </div> 
  
+Demo URL: https://jwtdemo4chris.herokuapp.com/index
+ 
  ---
  
  <h2 > 🔧 Technologies & Tools </h2>
