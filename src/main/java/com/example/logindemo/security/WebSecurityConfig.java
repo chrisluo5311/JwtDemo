@@ -63,8 +63,10 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(authEntryPointJWT).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()//定義哪些url需要被保護
-                .antMatchers("/index").permitAll()
+                .antMatchers("/").permitAll()
+                .antMatchers("/css/**").permitAll()
                 .antMatchers("/favicon.ico").permitAll()
+                .antMatchers("/members").permitAll()
                 .antMatchers("/api/auth/**").permitAll() // 定義匹配到"/api/auth/**" 不需要驗證
                 .antMatchers("/api/test/**").permitAll() // 定義匹配到"/api/test/**" 不需要驗證
                 .anyRequest().authenticated(); // 其他尚未匹配到的url都需要身份驗

@@ -8,9 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class FindViewController {
 
-    @GetMapping(value = "/index")
+    @GetMapping(value = "/")
     public String index(){
         return "index";
+    }
+
+    @GetMapping(value = "/members")
+    public String members(){
+        return "members";
     }
 
 }

@@ -1,76 +1,71 @@
 <%--
   Created by IntelliJ IDEA.
   User: chris
-  Date: 2021/10/19
-  Time: 下午 11:17
+  Date: 2021/12/18
+  Time: 上午 10:24
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %><%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix='form' uri="http://www.springframework.org/tags/form"%>
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="h-100">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
-<%--    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>--%>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.84.0">
+    <title>Cover Template · Bootstrap v5.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="<c:url value='/css/cover.css' />">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
 </head>
-<style>
 
-</style>
-<body>
+<body class="d-flex h-100 text-center text-white bg-dark">
 
-<section class="vh-100" style="background-color: #508bfc;">
-    <div class="container py-5 h-100">
-        <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                <div class="card shadow-2-strong" style="border-radius: 1rem;">
-                    <div class="card-body p-5 text-center">
-
-                        <h3 class="mb-5" style="font-weight: bold">Welcome</h3>
-
-                        <div class="form-outline mb-4">
-                            <input type="email" id="typeEmailX-2" class="form-control form-control-lg" />
-                            <label class="form-label" for="typeEmailX-2">Email</label>
-                        </div>
-
-                        <div class="form-outline mb-4">
-                            <input type="password" id="typePasswordX-2" class="form-control form-control-lg" />
-                            <label class="form-label" for="typePasswordX-2">Password</label>
-                        </div>
-
-                        <!-- Checkbox -->
-                        <div class="form-check d-flex justify-content-start mb-4">
-                            <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    value=""
-                                    id="form1Example3"
-                            />
-                            <label class="form-check-label" for="form1Example3"> Remember password </label>
-                        </div>
-
-                        <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
-
-                        <hr class="my-4">
-
-                        <button class="btn btn-lg btn-block btn-primary" style="background-color: #dd4b39;" type="submit"><i class="fab fa-google me-2"></i> Sign in with google</button>
-                        <button class="btn btn-lg btn-block btn-primary mb-2" style="background-color: #3b5998;" type="submit"><i class="fab fa-facebook-f me-2"></i>Sign in with facebook</button>
-
-                    </div>
-                </div>
-            </div>
+<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <header class="mb-auto">
+        <div>
+            <h3 class="float-md-start mb-0">{ ㄏ; }</h3>
+            <nav class="nav nav-masthead justify-content-center float-md-end">
+                <a class="nav-link active" aria-current="page" href="#">Home</a>
+                <!--        <a class="nav-link" href="#">Features</a>-->
+                <!--        <a class="nav-link" href="#">Contact</a>-->
+                <a class="nav-link" href="<c:url value='/members' />">Sing in</a>
+            </nav>
         </div>
-    </div>
-</section>
+    </header>
+
+    <main class="px-3">
+        <!--    <h1>Cover your page.</h1>-->
+        <!--    <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>-->
+        <a href="#" class="btn btn-lg btn-secondary fw-bold border-white bg-white">Learn more</a>
+        </p>
+    </main>
+
+    <footer class="mt-auto text-white-50">
+        <!--    <p>Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by <a href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>-->
+    </footer>
+</div>
 
 
-<script>
-
-</script>
 
 </body>
 </html>
