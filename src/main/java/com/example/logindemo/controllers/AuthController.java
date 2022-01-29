@@ -1,15 +1,21 @@
 package com.example.logindemo.controllers;
 
 import com.example.logindemo.models.ERole;
+import com.example.logindemo.models.RefreshToken;
 import com.example.logindemo.models.Role;
 import com.example.logindemo.models.User;
 import com.example.logindemo.payLoad.request.LoginRequest;
 import com.example.logindemo.payLoad.request.SignupRequest;
+import com.example.logindemo.payLoad.request.TokenRefreshRequest;
+import com.example.logindemo.payLoad.response.JwtResponse;
 import com.example.logindemo.payLoad.response.MessageResponse;
+import com.example.logindemo.payLoad.response.TokenRefreshResponse;
 import com.example.logindemo.payLoad.response.UserInfoResponse;
 import com.example.logindemo.repository.RoleRepository;
 import com.example.logindemo.repository.UserRepository;
 import com.example.logindemo.security.jwt.JwtUtils;
+import com.example.logindemo.security.jwt.TokenRefreshException;
+import com.example.logindemo.security.services.RefreshTokenService;
 import com.example.logindemo.security.services.UserDetailsImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -67,23 +73,23 @@ public class AuthController {
         //authenticate { username, pasword }
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        //update SecurityContext using Authentication object
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        //get UserDetails from Authentication object
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        //generate JWT
-        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+        String jwtToken = jwtUtils.generateJwtToken(userDetails);
+
         //腳色
         List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+                                                         .map(item -> item.getAuthority())
+                                                         .collect(Collectors.toList());
+
         log.info("roles:{}",roles);
-        //response contains JWT and UserDetails data
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtToken)
                 .body(new UserInfoResponse(userDetails.getId(),
-                        userDetails.getUsername(),
-                        userDetails.getEmail(),
-                        roles));
+                                           userDetails.getUsername(),
+                                           userDetails.getEmail(),
+                                           roles));
     }
 
 
@@ -97,7 +103,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
 
-        // Create new user's account
         User user = User.builder()
                         .username(signUpRequest.getUsername())
                         .email(signUpRequest.getEmail())
@@ -110,6 +115,7 @@ public class AuthController {
         if (strRoles == null) {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
@@ -147,5 +153,21 @@ public class AuthController {
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new MessageResponse("已被登出"));
     }
+
+
+//    @PostMapping("/refreshtoken")
+//    public ResponseEntity<?> refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {
+//        String requestRefreshToken = request.getRefreshToken();
+//
+//        return refreshTokenService.findByToken(requestRefreshToken)
+//                .map(refreshTokenService::verifyExpiration)
+//                .map(RefreshToken::getUser)
+//                .map(user -> {
+//                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
+//                    return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
+//                })
+//                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+//                        "Refresh token is not in database!"));
+//    }
 
 }

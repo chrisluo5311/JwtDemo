@@ -1,5 +1,6 @@
 package com.example.logindemo.security.jwt;
 
+import com.example.logindemo.common.constant.JwtConstants;
 import com.example.logindemo.security.services.UserDetailsImpl;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,16 +15,25 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import io.jsonwebtoken.*;
 
+/**
+ * jwt 工具類
+ *
+ * @author chris
+ * @Date 2022/01/29
+ * */
 @Slf4j
 @Component
 public class JwtUtils {
 
     /**
-     *  JWT SECRET KEY
+     *  JWT 密鑰
      * */
     @Value("${logindemo.app.jwtSecret}")
     private String jwtSecret;
 
+    /**
+     *  jwt token 超時時間: 一小時
+     * */
     @Value("${logindemo.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
@@ -44,13 +54,28 @@ public class JwtUtils {
     }
 
     /**
-     * 簽發JWT
-     * generate a Cookie containing JWT from username, date, expiration, secret
+     * 產生jwt token
+     *
+     * @param userPrincipal 用戶資訊
+     * @return jwt token
      * */
-    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true).build();
-        return cookie;
+    public String generateJwtToken(UserDetailsImpl userPrincipal) {
+        return generateTokenFromUsername(userPrincipal.getUsername());
+    }
+
+    /**
+     * 透過用戶名自產生jwt token
+     *
+     * @param username 用戶名
+     * @return jwt token
+     * */
+    private String generateTokenFromUsername(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))//設expiration
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)//簽名方式(帶密鑰
+                .compact();
     }
 
     /**
@@ -62,7 +87,10 @@ public class JwtUtils {
     }
 
     /**
-     * get username from JWT
+     * 從 jwt token 中取出用戶名
+     *
+     * @param token jwt token
+     * @return 用戶名
      * */
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
@@ -70,35 +98,28 @@ public class JwtUtils {
 
     /**
      * 驗證JWT
-     * validate a JWT with a secret
+     *
+     * @param authToken jwt token
+     * @param servletRequest HttpServletRequest
      * */
-    public boolean validateJwtToken(String authToken) {
+    public boolean validateJwtToken(String authToken,HttpServletRequest servletRequest) {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
             return true;
         } catch (SignatureException e) {
-            log.error("Invalid JWT signature: {}", e.getMessage());
+            log.error("無效的 JWT 簽名: {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
+            log.error("無效的 JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            log.error("JWT token is expired: {}", e.getMessage());
+            log.error("JWT token 超時: {}", e.getMessage());
+            servletRequest.setAttribute(JwtConstants.JWT_EXPIRED_CODE_KEY ,e.getCause());
         } catch (UnsupportedJwtException e) {
-            log.error("JWT token is unsupported: {}", e.getMessage());
+            log.error("JWT token 不支持: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty: {}", e.getMessage());
+            log.error("JWT claims string 為空: {}", e.getMessage());
         }
 
         return false;
-    }
-
-
-    private String generateTokenFromUsername(String username) {
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))//設expiration
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)//簽名方式(帶密鑰
-                .compact();
     }
 
 }
