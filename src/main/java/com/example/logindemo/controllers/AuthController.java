@@ -1,22 +1,19 @@
 package com.example.logindemo.controllers;
 
+import com.example.logindemo.common.response.MgrResponseDto;
 import com.example.logindemo.models.ERole;
-import com.example.logindemo.models.RefreshToken;
 import com.example.logindemo.models.Role;
 import com.example.logindemo.models.User;
 import com.example.logindemo.payLoad.request.LoginRequest;
 import com.example.logindemo.payLoad.request.SignupRequest;
-import com.example.logindemo.payLoad.request.TokenRefreshRequest;
-import com.example.logindemo.payLoad.response.JwtResponse;
 import com.example.logindemo.payLoad.response.MessageResponse;
-import com.example.logindemo.payLoad.response.TokenRefreshResponse;
 import com.example.logindemo.payLoad.response.UserInfoResponse;
 import com.example.logindemo.repository.RoleRepository;
 import com.example.logindemo.repository.UserRepository;
 import com.example.logindemo.security.jwt.JwtUtils;
-import com.example.logindemo.security.jwt.TokenRefreshException;
-import com.example.logindemo.security.services.RefreshTokenService;
 import com.example.logindemo.security.services.UserDetailsImpl;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -26,12 +23,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.List;
@@ -39,15 +34,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * – Requests:
- * LoginRequest: { username, password }
- * SignupRequest: { username, email, password }
+ * 登入/登出/註冊類
  *
- * – Responses:
- * UserInfoResponse: { id, username, email, roles }
- * MessageResponse: { message }
- *
+ * @author chris
  * */
+@Api(tags = "登入登出註冊")
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
@@ -67,9 +58,9 @@ public class AuthController {
     @Resource
     JwtUtils jwtUtils;
 
-
-    @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    @ApiOperation(value = "用户登入", httpMethod = "POST")
+    @RequestMapping(value = "/login",method = RequestMethod.POST)
+    public MgrResponseDto<UserInfoResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest,HttpServletResponse servletResponse) {
         //authenticate { username, pasword }
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -84,16 +75,14 @@ public class AuthController {
                                                          .collect(Collectors.toList());
 
         log.info("roles:{}",roles);
+        UserInfoResponse userInfoResponse = new UserInfoResponse(userDetails,roles);
+        servletResponse.setHeader(HttpHeaders.SET_COOKIE, jwtToken);
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtToken)
-                .body(new UserInfoResponse(userDetails.getId(),
-                                           userDetails.getUsername(),
-                                           userDetails.getEmail(),
-                                           roles));
+        return MgrResponseDto.success(userInfoResponse);
     }
 
-
-    @PostMapping("/signup")
+    @ApiOperation(value = "用户註冊", httpMethod = "POST")
+    @RequestMapping(value = "/signup",method = RequestMethod.POST)
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
@@ -146,7 +135,8 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("用戶成功註冊"));
     }
 
-    @PostMapping("/signout")
+    @ApiOperation(value = "用户登出", httpMethod = "GET")
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
     public ResponseEntity<?> logoutUser() {
         //clear the Cookie.
         ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
