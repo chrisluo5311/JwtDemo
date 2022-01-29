@@ -9,15 +9,11 @@ import org.springframework.context.annotation.PropertySource;
 @SpringBootApplication
 public class LoginDemoApplication {
 
-
-
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(LoginDemoApplication.class, args);
-
-//        SystemProperties systemProperties = ctx.getBean(SystemProperties.class);
-//        System.out.println(systemProperties.getName());
-//        System.out.println(systemProperties.getLogintype());
-//        System.out.println(systemProperties.getPort());
     }
+
+
+
 
 }
