@@ -4,14 +4,18 @@ import com.example.logindemo.Utils.TimeUtil;
 import com.example.logindemo.exception.base.BaseException;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import com.example.logindemo.common.response.MgrResponseDto;
+import com.example.logindemo.security.jwt.TokenRefreshException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
 import java.util.List;
@@ -83,6 +87,12 @@ public class GlobalExceptionHandler {
         dto.setCode(MgrResponseCode.PARAM_INVALID);
         dto.setMessage(sb.toString());
         return dto;
+    }
+
+    @ExceptionHandler(value = TokenRefreshException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public MgrResponseDto handleTokenRefreshException(TokenRefreshException ex) {
+        return MgrResponseDto.error(String.valueOf(HttpStatus.FORBIDDEN.value()),ex.getMessage());
     }
 
 }

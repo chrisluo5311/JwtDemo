@@ -5,6 +5,12 @@ import com.example.logindemo.exception.responsecode.MgrResponseCode;
 
 public class MgrResponseDto<T> {
 
+    private String code;
+
+    private String message;
+
+    private T data;
+
     public static <T> MgrResponseDto<T> success(T data) {
         MgrResponseDto<T> dto = new MgrResponseDto<>();
         dto.setCode(MgrResponseCode.SUCCESS.getCode());
@@ -29,12 +35,6 @@ public class MgrResponseDto<T> {
     public static MgrResponseDto<Void> success() {
         return success(null);
     }
-
-    private String code;
-
-    private String message;
-
-    private T data;
 
     public void setCode(String code) {
         this.code = code;

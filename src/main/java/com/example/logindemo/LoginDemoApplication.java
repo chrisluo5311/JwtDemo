@@ -10,7 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 public class LoginDemoApplication {
 
     public static void main(String[] args) {
-        ApplicationContext ctx = SpringApplication.run(LoginDemoApplication.class, args);
+        SpringApplication.run(LoginDemoApplication.class, args);
     }
 
 
