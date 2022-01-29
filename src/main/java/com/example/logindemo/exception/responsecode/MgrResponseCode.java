@@ -21,6 +21,13 @@ public enum MgrResponseCode {
     PARAM_NOT_FOUND("0101", "參數不存在"),
     PARAM_INVALID("0102", "無效的參數"),
 
+    USER_NOT_FOUND("0201","用戶不存在"),
+    USER_ALREADY_EXISTS("0202","用戶已存在"),
+    USER_EMAIL_ALREADY_EXISTS("0203","用戶EMAIL已存在"),
+    USER_ROLES_NOT_FOUND("0204","用戶權限不存在"),
+
+    ROLE_NOT_FOUND("0301","DB權限表不存在"),
+
     // 未知错误
     UNKNOWN_ERROR("9999", "系统错误");
 

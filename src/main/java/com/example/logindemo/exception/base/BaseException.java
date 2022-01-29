@@ -1,6 +1,7 @@
 package com.example.logindemo.exception.base;
 
 import com.example.logindemo.exception.Modules;
+import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import lombok.ToString;
 
 /**
@@ -32,27 +33,26 @@ public class BaseException extends RuntimeException {
      */
     private String message;
 
-    public BaseException(Modules module, String code, Object[] args, String defaultMessage) {
+    public BaseException(Modules module, String code, Object[] args, String message) {
         this.module = module;
         this.code = code;
         this.args = args;
-        this.message = defaultMessage;
+        this.message = message;
+    }
+
+    public BaseException(Modules module, MgrResponseCode code, Object[] args, String message) {
+        this.module = module;
+        this.code = code.getCode();
+        this.args = args;
+        this.message = message;
     }
 
     public BaseException(Modules module, String code, Object[] args) {
         this(module, code, args, null);
     }
 
-    public BaseException(Modules module, String defaultMessage) {
-        this(module, null, null, defaultMessage);
-    }
-
     public BaseException(String code, Object[] args) {
         this(null, code, args, null);
-    }
-
-    public BaseException(String defaultMessage) {
-        this(null, null, null, defaultMessage);
     }
 
     public Modules getModule() {

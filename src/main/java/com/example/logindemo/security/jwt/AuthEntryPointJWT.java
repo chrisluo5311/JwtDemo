@@ -33,10 +33,9 @@ public class AuthEntryPointJWT implements AuthenticationEntryPoint {
 
         //超時回應006
         if(request.getAttribute(JwtConstants.JWT_EXPIRED_CODE_KEY)!=null){
-            String errorMsg = MgrResponseCode.JWT_TOKEN_EXPIRED.getMessage();
             log.error("ip:{} jwt token 已超时，需重新登入",ip);
             //response body
-            final UserJwtException userJwtException = new UserJwtException(MgrResponseCode.JWT_TOKEN_EXPIRED.getCode(), new Object[]{request.getServletPath()}, errorMsg);
+            final UserJwtException userJwtException = new UserJwtException(MgrResponseCode.JWT_TOKEN_EXPIRED, new Object[]{request.getServletPath()});
 
             objectMapper.writeValue(response.getOutputStream(), userJwtException);
             return;
