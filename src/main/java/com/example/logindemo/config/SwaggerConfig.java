@@ -16,6 +16,7 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.schema.AlternateTypeRule;
 import springfox.documentation.schema.AlternateTypeRuleConvention;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -45,9 +46,9 @@ public class SwaggerConfig extends DefaultSwaggerConfig{
 	private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
         		// 标题
-                .title("LoginDemo Api 文檔")
+                .title("JwtDemo Api 文檔")
                 // 描述
-                .description("LoginDemo Api 文檔<br>" +
+                .description("JwtDemo 文檔<br>" +
                         "<b>備註：<br>" +
                         "(1)頁面上的\"文檔管理\"要配置\"全局参数设置\"(为了模擬已登入狀態),配置后<a href=\"#\">重刷頁面</a>即可生效<br></b>" +
                         "参數名稱:Authorization<br>" +
@@ -56,7 +57,8 @@ public class SwaggerConfig extends DefaultSwaggerConfig{
                         "<b><font color=\"red\">(2)生產環境要屏蔽swagger相關資源，要在properties添加以下参数<br></font></b>" +
                         "knife4j.production=true<br>")
                 // 版本
-                .version("1.0") 
+                .version("1.0")
+                .contact(new Contact("Chris","https://www.linkedin.com/in/chris-luo-b4b350189/","chrislo5311@gmail.com"))
                 .build();
     }
 	

@@ -55,16 +55,16 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers("/v2/api-docs",
-                "/configuration/ui",
-                "/swagger-resources/**",
-                "/configuration/security",
-                "/swagger-ui.html",
-                "/doc.html",
-                "/webjars/**",
-                "/favicon.ico",
-                "/error",
-                "/mode-Text.js",
-                "/css/**");
+                                    "/configuration/ui",
+                                    "/swagger-resources/**",
+                                    "/configuration/security",
+                                    "/swagger-ui.html",
+                                    "/doc.html",
+                                    "/webjars/**",
+                                    "/favicon.ico",
+                                    "/error",
+                                    "/mode-Text.js",
+                                    "/css/**");
     }
 
     @Override
@@ -75,6 +75,7 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()//定義哪些url需要被保護
                 .antMatchers("/").permitAll()
                 .antMatchers("/members").permitAll()
+                .antMatchers("/index").permitAll()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/test/**").permitAll()
                 .anyRequest().authenticated();

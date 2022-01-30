@@ -60,10 +60,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/swagger-resources/**")
                 .excludePathPatterns("/webjars/**")
                 .excludePathPatterns("/favicon.ico")
+                .excludePathPatterns("/v2/api-docs")
+                .excludePathPatterns("/css/**")
                 // -- swagger end --
                 .excludePathPatterns("/api/auth/**")
                 .excludePathPatterns("/api/test/**")
                 .excludePathPatterns("/members")
+                .excludePathPatterns("/index")
                 .addPathPatterns("/**");
     }
 
