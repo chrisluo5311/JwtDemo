@@ -18,5 +18,5 @@ public interface LoginService {
 
     TokenRefreshResponse refreshToken(TokenRefreshRequest refreshRequest);
 
-    void logOutUser(LogOutRequest logOutRequest);
+    void logOutUser(LogOutRequest logOutRequest,HttpServletRequest servletRequest);
 }

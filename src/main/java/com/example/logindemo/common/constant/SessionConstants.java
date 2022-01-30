@@ -8,8 +8,12 @@ package com.example.logindemo.common.constant;
 public class SessionConstants {
 
     /**
-     * Session key
+     * SessionEntity key
      * */
     public static final String SESSION_ATTRIBUTE_KEY = "sessionEntity";
 
+    /**
+     * SessionAttribute key
+     * */
+    public static final String SESSION_ATTRIBUTE = "SessionAttribute";
 }

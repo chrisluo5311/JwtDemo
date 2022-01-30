@@ -1,6 +1,7 @@
 package com.example.logindemo.service.impl;
 
 import com.example.logindemo.Utils.IpUtils;
+import com.example.logindemo.common.constant.JwtConstants;
 import com.example.logindemo.common.constant.RoleConstants;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import com.example.logindemo.exception.user.UserException;
@@ -23,6 +24,7 @@ import com.example.logindemo.security.services.RefreshTokenService;
 import com.example.logindemo.security.services.UserDetailsImpl;
 import com.example.logindemo.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,6 +39,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +53,9 @@ import java.util.stream.Collectors;
 public class LoginServiceImpl implements LoginService {
 
     private static final String LOG_PREFIX = "[LoginServiceImpl]";
+
+    @Resource
+    private RedisTemplate<String, String> redisTemplate;
 
     @Resource
     AuthenticationManager authenticationManager;
@@ -170,11 +176,35 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public void logOutUser(LogOutRequest logOutRequest) {
+    public void logOutUser(LogOutRequest logOutRequest,HttpServletRequest servletRequest) {
         Long userId = logOutRequest.getUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(()->new UserException(MgrResponseCode.USER_NOT_FOUND,new Object[]{userId}));
         refreshTokenService.deleteByUserId(user);
+        String jwtToken = parseJwt(servletRequest);
+        redisTemplate.opsForValue().set(jwtToken,jwtToken,JwtConstants.LOGOUT_EXPIRATION_TIME, TimeUnit.HOURS);
         log.info("{} 用戶:{} 登出裝置成功",LOG_PREFIX,user.getUsername());
+    }
+
+    /**
+     * 從 HttpServletRequest 的 Header 取 Authorization 的值<br>
+     * 並截斷 Bearer 字段只取後方的token
+     * @param request HttpServletRequest
+     * @return jwt token
+     * */
+    private String parseJwt(HttpServletRequest request){
+        String jwtToken = null;
+
+        final String requestTokenHeader = request.getHeader(JwtConstants.AUTHORIZATION_CODE_KEY);
+
+        // JWT Token在"Bearer token"里 移除Bearer字段只取Token
+        if(requestTokenHeader!=null){
+            if (requestTokenHeader.startsWith(JwtConstants.BEARER_CODE_KEY)) {
+                jwtToken = requestTokenHeader.substring(7);
+            } else {
+                log.warn("JWT Token 不在Bearer里面");
+            }
+        }
+        return jwtToken;
     }
 }

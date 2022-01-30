@@ -75,10 +75,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 
     /**
-     * 从 HttpServletRequest的Header取Authorization的值<br>
-     * 并截断Bearer 字段只取后方的token
+     * 從 HttpServletRequest 的 Header 取 Authorization 的值<br>
+     * 並截斷 Bearer 字段只取後方的token
      * @param request HttpServletRequest
-     * @return String jwt token
+     * @return jwt token
      * */
     private String parseJwt(HttpServletRequest request){
         String jwtToken = null;
@@ -90,7 +90,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             if (requestTokenHeader.startsWith(JwtConstants.BEARER_CODE_KEY)) {
                 jwtToken = requestTokenHeader.substring(7);
             } else {
-                logger.warn("JWT Token 不在Bearer里面");
+                log.warn("JWT Token 不在Bearer里面");
             }
         }
         return jwtToken;

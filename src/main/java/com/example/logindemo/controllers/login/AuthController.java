@@ -1,4 +1,4 @@
-package com.example.logindemo.controllers;
+package com.example.logindemo.controllers.login;
 
 import com.example.logindemo.common.constant.JwtConstants;
 import com.example.logindemo.common.response.MgrResponseDto;
@@ -54,8 +54,9 @@ public class AuthController {
 
     @ApiOperation(value = "用户登出", httpMethod = "GET")
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
-    public MgrResponseDto<?> logoutUser(@Valid @RequestParam LogOutRequest logOutRequest) {
-        loginService.logOutUser(logOutRequest);
+    public MgrResponseDto<?> logoutUser(@Valid @RequestParam LogOutRequest logOutRequest,
+                                        HttpServletRequest servletRequest) {
+        loginService.logOutUser(logOutRequest,servletRequest);
         return MgrResponseDto.success();
     }
 

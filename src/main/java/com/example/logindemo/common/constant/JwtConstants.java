@@ -26,4 +26,7 @@ public class JwtConstants {
      * */
     public static final String JWT_EXPIRED_CODE_KEY = "jwtExpired";
 
+    /** 登出redis black list key 時效 */
+    public static final int LOGOUT_EXPIRATION_TIME = 1;
+
 }
