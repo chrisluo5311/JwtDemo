@@ -69,13 +69,13 @@ public class JwtUtils {
      * @param username 用戶名
      * @return jwt token
      * */
-    private String generateTokenFromUsername(String username) {
+    public String generateTokenFromUsername(String username) {
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))//設expiration
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)//簽名方式(帶密鑰
-                .compact();
+                   .setSubject(username)
+                   .setIssuedAt(new Date())
+                   .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))//設expiration
+                   .signWith(SignatureAlgorithm.HS512, jwtSecret)//簽名方式(帶密鑰
+                   .compact();
     }
 
     /**

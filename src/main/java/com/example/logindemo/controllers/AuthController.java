@@ -1,46 +1,24 @@
 package com.example.logindemo.controllers;
 
-import com.example.logindemo.Utils.IpUtils;
+import com.example.logindemo.common.constant.JwtConstants;
 import com.example.logindemo.common.response.MgrResponseDto;
-import com.example.logindemo.exception.responsecode.MgrResponseCode;
-import com.example.logindemo.exception.user.UserException;
-import com.example.logindemo.models.ERole;
-import com.example.logindemo.models.RefreshToken;
-import com.example.logindemo.models.Role;
 import com.example.logindemo.models.User;
-import com.example.logindemo.models.enums.UserStatus;
+import com.example.logindemo.payLoad.request.LogOutRequest;
 import com.example.logindemo.payLoad.request.LoginRequest;
 import com.example.logindemo.payLoad.request.SignupRequest;
+import com.example.logindemo.payLoad.request.TokenRefreshRequest;
 import com.example.logindemo.payLoad.response.JwtResponse;
-import com.example.logindemo.payLoad.response.MessageResponse;
-import com.example.logindemo.repository.RoleRepository;
-import com.example.logindemo.repository.UserRepository;
-import com.example.logindemo.security.jwt.JwtUtils;
-import com.example.logindemo.security.services.RefreshTokenService;
-import com.example.logindemo.security.services.UserDetailsImpl;
+import com.example.logindemo.payLoad.response.TokenRefreshResponse;
 import com.example.logindemo.service.LoginService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * 登入/登出/註冊類
@@ -62,7 +40,7 @@ public class AuthController {
                                                         HttpServletResponse servletResponse) {
         JwtResponse jwtResponse = loginService.loginMember(loginRequest);
         //在header中設置jwtToken
-        servletResponse.setHeader(HttpHeaders.SET_COOKIE, jwtResponse.getToken());
+        servletResponse.setHeader(JwtConstants.AUTHORIZATION_CODE_KEY,JwtConstants.BEARER_CODE_KEY + jwtResponse.getToken());
         return MgrResponseDto.success(jwtResponse);
     }
 
@@ -74,29 +52,22 @@ public class AuthController {
         return MgrResponseDto.success(user);
     }
 
-//    @ApiOperation(value = "用户登出", httpMethod = "GET")
-//    @RequestMapping(value = "/logout", method = RequestMethod.GET)
-//    public ResponseEntity<?> logoutUser() {
-//        //clear the Cookie.
-//        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
-//        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
-//                .body(new MessageResponse("已被登出"));
-//    }
+    @ApiOperation(value = "用户登出", httpMethod = "GET")
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    public MgrResponseDto<?> logoutUser(@Valid @RequestParam LogOutRequest logOutRequest) {
+        loginService.logOutUser(logOutRequest);
+        return MgrResponseDto.success();
+    }
 
 
-//    @PostMapping("/refreshtoken")
-//    public ResponseEntity<?> refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {
-//        String requestRefreshToken = request.getRefreshToken();
-//
-//        return refreshTokenService.findByToken(requestRefreshToken)
-//                .map(refreshTokenService::verifyExpiration)
-//                .map(RefreshToken::getUser)
-//                .map(user -> {
-//                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
-//                    return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
-//                })
-//                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-//                        "Refresh token is not in database!"));
-//    }
+    @ApiOperation(value = "獲得新的Token",httpMethod = "POST")
+    @RequestMapping(value = "/refreshToken",method = RequestMethod.POST)
+    public MgrResponseDto<TokenRefreshResponse> refreshToken(@Valid @RequestBody TokenRefreshRequest request,
+                                                             HttpServletResponse servletResponse) {
+        TokenRefreshResponse tokenRefreshResponse = loginService.refreshToken(request);
+        //在header中設置jwtToken
+        servletResponse.setHeader(JwtConstants.AUTHORIZATION_CODE_KEY,JwtConstants.BEARER_CODE_KEY + tokenRefreshResponse.getAccessToken());
+        return MgrResponseDto.success(tokenRefreshResponse);
+    }
 
 }

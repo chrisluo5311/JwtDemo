@@ -1,4 +1,4 @@
-package com.example.logindemo.exception;
+package com.example.logindemo.exception.modules;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public enum Modules {
 
-    USER("USER");
+    USER("USER"),
+    REFRESH_TOKEN("refreshToken");
 
     private String code;
 

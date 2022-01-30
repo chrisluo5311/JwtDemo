@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 /**
  * 錯誤響應碼與信息對照表
  *
+ * @author chris
+ * @date 2022/01/29
  * */
 @AllArgsConstructor
 public enum MgrResponseCode {
@@ -17,6 +19,8 @@ public enum MgrResponseCode {
     INVALID_REMOTE_API("0004", "遠程調用異常"),
     CAPTCHA_EXPIRE_OR_NOT_EXIST("0005", "驗證碼超時或不存在，請重新產生"),
     JWT_TOKEN_EXPIRED("0006","Jwt Token 已超時，請重新登入"),
+    REFRESH_TOKEN_EXPIRED("0007","Refresh Token 已超時，請重新獲取"),
+    REFRESH_TOKEN_NOT_EXISTS_IN_DB("0008","Refresh Token 不存在 DB"),
 
     PARAM_NOT_FOUND("0101", "參數不存在"),
     PARAM_INVALID("0102", "無效的參數"),
@@ -25,10 +29,13 @@ public enum MgrResponseCode {
     USER_ALREADY_EXISTS("0202","用戶已存在"),
     USER_EMAIL_ALREADY_EXISTS("0203","用戶EMAIL已存在"),
     USER_ROLES_NOT_FOUND("0204","用戶權限不存在"),
+    USER_ALREADY_LOGOUT("0205","用戶已經登出"),
 
     ROLE_NOT_FOUND("0301","DB權限表不存在"),
 
-    // 未知错误
+    DB_FAIL("0401", "資料庫操作失敗"),
+
+    // 未知錯誤
     UNKNOWN_ERROR("9999", "系统错误");
 
     private String code;

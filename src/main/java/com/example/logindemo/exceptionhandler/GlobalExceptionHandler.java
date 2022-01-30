@@ -4,7 +4,7 @@ import com.example.logindemo.Utils.TimeUtil;
 import com.example.logindemo.exception.base.BaseException;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import com.example.logindemo.common.response.MgrResponseDto;
-import com.example.logindemo.security.jwt.TokenRefreshException;
+import com.example.logindemo.exception.tokenrefresh.TokenRefreshException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -15,14 +15,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 處理BaseException類
+ * 處理 Exception 類
  *
  * @author chris
  * */

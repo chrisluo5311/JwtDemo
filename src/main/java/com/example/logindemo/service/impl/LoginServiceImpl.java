@@ -9,12 +9,16 @@ import com.example.logindemo.models.RefreshToken;
 import com.example.logindemo.models.Role;
 import com.example.logindemo.models.User;
 import com.example.logindemo.models.enums.UserStatus;
+import com.example.logindemo.payLoad.request.LogOutRequest;
 import com.example.logindemo.payLoad.request.LoginRequest;
 import com.example.logindemo.payLoad.request.SignupRequest;
+import com.example.logindemo.payLoad.request.TokenRefreshRequest;
 import com.example.logindemo.payLoad.response.JwtResponse;
+import com.example.logindemo.payLoad.response.TokenRefreshResponse;
 import com.example.logindemo.repository.RoleRepository;
 import com.example.logindemo.repository.UserRepository;
 import com.example.logindemo.security.jwt.JwtUtils;
+import com.example.logindemo.exception.tokenrefresh.TokenRefreshException;
 import com.example.logindemo.security.services.RefreshTokenService;
 import com.example.logindemo.security.services.UserDetailsImpl;
 import com.example.logindemo.service.LoginService;
@@ -149,5 +153,28 @@ public class LoginServiceImpl implements LoginService {
         User userResult = userRepository.save(user);
         log.info("{} 新用戶:{} 註冊成功",LOG_PREFIX,userResult.toString());
         return userResult;
+    }
+
+    @Transactional
+    @Override
+    public TokenRefreshResponse refreshToken(TokenRefreshRequest refreshRequest) {
+        String requestRefreshToken = refreshRequest.getRefreshToken();
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
+                    return new TokenRefreshResponse(token, requestRefreshToken);
+                })
+                .orElseThrow(() -> new TokenRefreshException(MgrResponseCode.REFRESH_TOKEN_NOT_EXISTS_IN_DB,requestRefreshToken));
+    }
+
+    @Override
+    public void logOutUser(LogOutRequest logOutRequest) {
+        Long userId = logOutRequest.getUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new UserException(MgrResponseCode.USER_NOT_FOUND,new Object[]{userId}));
+        refreshTokenService.deleteByUserId(user);
+        log.info("{} 用戶:{} 登出裝置成功",LOG_PREFIX,user.getUsername());
     }
 }
