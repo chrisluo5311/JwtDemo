@@ -1,7 +1,7 @@
 package com.example.logindemo.exception.user;
 
 
-import com.example.logindemo.exception.Modules;
+import com.example.logindemo.exception.modules.Modules;
 import com.example.logindemo.exception.base.BaseException;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 

@@ -1,8 +1,7 @@
 package com.example.logindemo.exception.base;
 
-import com.example.logindemo.exception.Modules;
+import com.example.logindemo.exception.modules.Modules;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
-import lombok.ToString;
 
 /**
  *  基礎異常

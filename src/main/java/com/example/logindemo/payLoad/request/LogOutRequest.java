@@ -3,17 +3,14 @@ package com.example.logindemo.payLoad.request;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
-import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 
-@ApiModel(value = "Token Refresh 請求")
+@ApiModel(value = "登出請求")
 @Getter
-@Setter
-public class TokenRefreshRequest {
+public class LogOutRequest {
 
-    @ApiModelProperty(value = "Refresh Token")
+    @ApiModelProperty(value = "用戶id")
     @NotBlank
-    private String refreshToken;
-
+    private Long userId;
 }
