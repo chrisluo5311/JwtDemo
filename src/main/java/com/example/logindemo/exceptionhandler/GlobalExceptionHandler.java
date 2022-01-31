@@ -5,6 +5,7 @@ import com.example.logindemo.exception.base.BaseException;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import com.example.logindemo.common.response.MgrResponseDto;
 import com.example.logindemo.exception.tokenrefresh.TokenRefreshException;
+import com.example.logindemo.exception.user.UserJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -39,6 +40,22 @@ public class GlobalExceptionHandler {
         MgrResponseDto dto = new MgrResponseDto();
 
         dto.setCode(e.getCode());
+        dto.setMessage(e.getMessage());
+
+        return dto;
+    }
+
+    @ExceptionHandler(UserJwtException.class)
+    public MgrResponseDto errorHandler(UserJwtException e) {
+        e.printStackTrace();
+
+        MgrResponseDto dto = new MgrResponseDto();
+
+        if(e.getMgrResponseCode()!=null){
+            dto.setCode(e.getMgrResponseCode().getCode());
+        } else if(e.getCode()!=null){
+            dto.setCode(e.getCode());
+        }
         dto.setMessage(e.getMessage());
 
         return dto;

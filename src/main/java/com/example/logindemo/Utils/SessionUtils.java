@@ -8,8 +8,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -20,15 +21,12 @@ import java.util.Base64;
  * @author chris
  * @date 2022/01/30
  * */
+@Component
 @Slf4j
 public class SessionUtils {
 
-    private static ObjectMapper objectMapper;
-
-    @Autowired
-    public SessionUtils(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+    @Resource
+    ObjectMapper objectMapper;
 
     /**
      * 從 HttpServletRequest 中取出 SessionEntity
@@ -37,7 +35,7 @@ public class SessionUtils {
      * @return SessionEntity
      * @throws JsonProcessingException
      * */
-    public static SessionEntity pullSessionFromRequest(HttpServletRequest servletRequest) throws JsonProcessingException {
+    public SessionEntity pullSessionFromRequest(HttpServletRequest servletRequest) throws JsonProcessingException, UserJwtException {
         String encodedJson = servletRequest.getHeader(SessionConstants.SESSION_ATTRIBUTE_KEY);
         if (StringUtils.isBlank(encodedJson)) {
             log.warn("請求來源未带有token 請求ip位址: {}", IpUtils.getIpAddr(servletRequest));
@@ -54,7 +52,7 @@ public class SessionUtils {
      * @param request HttpServletRequest
      * @return SessionEntity
      * */
-    public static void pushSessionToRequest(SessionEntity entity, HttpServletRequest request) {
+    public void pushSessionToRequest(SessionEntity entity, HttpServletRequest request) {
         String encodedSession = encodeSessionEntity(entity);
         request.setAttribute(SessionConstants.SESSION_ATTRIBUTE_KEY, encodedSession);
     }
@@ -65,7 +63,7 @@ public class SessionUtils {
      * @param sessionEntity SessionEntity
      * @return base64後的sessionEntity
      * */
-    private static String encodeSessionEntity(SessionEntity sessionEntity) {
+    private String encodeSessionEntity(SessionEntity sessionEntity) {
         try {
             String json = objectMapper.writeValueAsString(sessionEntity);
             return Base64.getEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));

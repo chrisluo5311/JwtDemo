@@ -3,6 +3,7 @@ package com.example.logindemo.service.impl;
 import com.example.logindemo.Utils.IpUtils;
 import com.example.logindemo.common.constant.JwtConstants;
 import com.example.logindemo.common.constant.RoleConstants;
+import com.example.logindemo.common.session.SessionEntity;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import com.example.logindemo.exception.user.UserException;
 import com.example.logindemo.models.ERole;
@@ -177,8 +178,8 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public void logOutUser(LogOutRequest logOutRequest, HttpServletRequest servletRequest) {
-        Long userId = logOutRequest.getUserId();
+    public void logOutUser(SessionEntity sessionEntity, HttpServletRequest servletRequest) {
+        Long userId = sessionEntity.getUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(MgrResponseCode.USER_NOT_FOUND, new Object[]{userId}));
         refreshTokenService.deleteByUserId(user);

@@ -2,6 +2,8 @@ package com.example.logindemo.controllers.login;
 
 import com.example.logindemo.common.constant.JwtConstants;
 import com.example.logindemo.common.response.MgrResponseDto;
+import com.example.logindemo.common.session.SessionEntity;
+import com.example.logindemo.controllers.core.BaseController;
 import com.example.logindemo.models.User;
 import com.example.logindemo.payLoad.request.LogOutRequest;
 import com.example.logindemo.payLoad.request.LoginRequest;
@@ -14,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +32,7 @@ import javax.validation.Valid;
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AuthController extends BaseController {
 
     @Resource
     LoginService loginService;
@@ -54,9 +57,8 @@ public class AuthController {
 
     @ApiOperation(value = "用户登出", httpMethod = "GET")
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
-    public MgrResponseDto<?> logoutUser(@Valid @RequestParam LogOutRequest logOutRequest,
-                                        HttpServletRequest servletRequest) {
-        loginService.logOutUser(logOutRequest,servletRequest);
+    public MgrResponseDto<?> logoutUser(HttpServletRequest servletRequest) {
+        loginService.logOutUser(getSession(),servletRequest);
         return MgrResponseDto.success();
     }
 

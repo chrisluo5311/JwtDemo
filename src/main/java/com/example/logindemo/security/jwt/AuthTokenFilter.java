@@ -8,6 +8,7 @@ import com.example.logindemo.common.constant.SessionConstants;
 import com.example.logindemo.common.session.SessionEntity;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import com.example.logindemo.exception.user.UserException;
+import com.example.logindemo.exception.user.UserJwtException;
 import com.example.logindemo.security.services.UserDetailsImpl;
 import com.example.logindemo.security.services.UserDetailsServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Resource
     private RedisTemplate<String, String> redisTemplate;
 
+    @Resource
+    SessionUtils sessionUtils;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -52,19 +56,21 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 String userName = jwtUtils.getUserNameFromJwtToken(jwt);
                 //查看 redis 登出黑名單
                 if(redisTemplate.hasKey(jwt)){
-                    throw new UserException(MgrResponseCode.USER_ALREADY_LOGOUT,new Object[]{userName});
+                    throw new UserJwtException(MgrResponseCode.USER_ALREADY_LOGOUT,new Object[]{userName});
                 }
                 if(jwtUtils.validateJwtToken(jwt,request)){
                     UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    UserDetailsImpl userDetails1 = (UserDetailsImpl) userDetails;
                     SessionEntity sessionEntity = SessionEntity.builder()
+                                                               .userId(userDetails1.getId())
                                                                .userName(userName)
                                                                .ip(ip)
                                                                .build();
                     //request header中設置session
-                    SessionUtils.pushSessionToRequest(sessionEntity,request);
+                    sessionUtils.pushSessionToRequest(sessionEntity,request);
                 }
             }
         }catch (Exception e){

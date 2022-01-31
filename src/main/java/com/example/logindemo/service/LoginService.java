@@ -1,5 +1,6 @@
 package com.example.logindemo.service;
 
+import com.example.logindemo.common.session.SessionEntity;
 import com.example.logindemo.models.User;
 import com.example.logindemo.payLoad.request.LogOutRequest;
 import com.example.logindemo.payLoad.request.LoginRequest;
@@ -18,5 +19,5 @@ public interface LoginService {
 
     TokenRefreshResponse refreshToken(TokenRefreshRequest refreshRequest);
 
-    void logOutUser(LogOutRequest logOutRequest,HttpServletRequest servletRequest);
+    void logOutUser(SessionEntity sessionEntity, HttpServletRequest servletRequest);
 }
