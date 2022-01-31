@@ -10,8 +10,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import java.util.Arrays;
 
 /**
- * 處理常見 Exception
- * 包裝成 MgrResponseDto
+ * 處理常見 Exception 包裝成 MgrResponseDto
  * 原因: 避免不確定的錯誤信息直接暴露給用戶
  *
  * @author chris

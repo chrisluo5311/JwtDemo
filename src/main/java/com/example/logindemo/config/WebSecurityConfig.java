@@ -74,10 +74,13 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()//定義哪些url需要被保護
                 .antMatchers("/").permitAll()
+                //前端頁面start
                 .antMatchers("/members").permitAll()
                 .antMatchers("/index").permitAll()
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/test/**").permitAll()
+                //前端頁面end
+                .antMatchers("/api/auth/login").permitAll()
+                .antMatchers("/api/auth/signup").permitAll()
+                .antMatchers("/api/auth/refreshToken").permitAll()
                 .antMatchers("/inner/session").permitAll()
                 .anyRequest().authenticated();
         //加filter

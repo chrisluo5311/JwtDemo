@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.Base64;
 
-@Api(tags = "内部测试接口")
+@Api(tags = "內部測試Api")
 @RestController
 @Slf4j
 @RequestMapping(InnerRouteConsts.PATH)

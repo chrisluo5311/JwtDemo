@@ -93,7 +93,7 @@ public class JwtUtils {
      * @return 用戶名
      * */
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+       return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
     /**
@@ -112,13 +112,12 @@ public class JwtUtils {
             log.error("無效的 JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
             log.error("JWT token 超時: {}", e.getMessage());
-            servletRequest.setAttribute(JwtConstants.JWT_EXPIRED_CODE_KEY ,e.getCause());
+            servletRequest.setAttribute(JwtConstants.JWT_EXPIRED_CODE_KEY ,e.getMessage());
         } catch (UnsupportedJwtException e) {
             log.error("JWT token 不支持: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
             log.error("JWT claims string 為空: {}", e.getMessage());
         }
-
         return false;
     }
 

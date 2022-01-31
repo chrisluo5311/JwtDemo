@@ -11,6 +11,7 @@ import com.example.logindemo.exception.user.UserException;
 import com.example.logindemo.exception.user.UserJwtException;
 import com.example.logindemo.security.services.UserDetailsImpl;
 import com.example.logindemo.security.services.UserDetailsServiceImpl;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -73,7 +74,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                     sessionUtils.pushSessionToRequest(sessionEntity,request);
                 }
             }
-        }catch (Exception e){
+        } catch (ExpiredJwtException e) {
+            request.setAttribute(JwtConstants.JWT_EXPIRED_CODE_KEY ,e.getMessage());
+        } catch (Exception e){
             log.error("無法設置用戶權限: {}",e);
         }
         filterChain.doFilter(request, response);

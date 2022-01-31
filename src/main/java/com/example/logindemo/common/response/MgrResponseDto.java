@@ -3,6 +3,14 @@ package com.example.logindemo.common.response;
 
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 
+/**
+ * 響應類<br>
+ * 1. code
+ * 2. message
+ * 3. data
+ *
+ * @author chris
+ * */
 public class MgrResponseDto<T> {
 
     private String code;
