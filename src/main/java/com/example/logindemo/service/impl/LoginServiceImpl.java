@@ -26,6 +26,8 @@ import com.example.logindemo.service.LoginService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -81,8 +83,16 @@ public class LoginServiceImpl implements LoginService {
         String password = loginRequest.getPassword();
         log.info("{} 用戶:{} 發送登入請求",LOG_PREFIX,userName);
         //驗證 用戶名與密碼
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+        Authentication authentication = null;
+        try{
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+        } catch (DisabledException e) {
+            log.error("用戶名:{}登入失败 USER_DISABLED : {}",userName, e.getMessage());
+            throw new UserException(MgrResponseCode.USER_NOT_FOUND,new Object[]{userName});
+        } catch (BadCredentialsException e) {
+            log.error("用戶名:{}登入失败 INVALID_CREDENTIALS : {}",userName,e.getMessage());
+            throw new UserException(MgrResponseCode.USER_PASSWORD_INVALID,new Object[]{userName});
+        }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();

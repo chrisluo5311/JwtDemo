@@ -6,6 +6,8 @@ import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import com.example.logindemo.common.response.MgrResponseDto;
 import com.example.logindemo.exception.tokenrefresh.TokenRefreshException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
  * */
 @Slf4j
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BaseException.class)

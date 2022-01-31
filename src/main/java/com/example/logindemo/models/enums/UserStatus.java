@@ -15,5 +15,5 @@ public enum UserStatus {
     ENABLE(1),
     DISABLE(-1);
 
-    private int code;
+    private Integer code;
 }

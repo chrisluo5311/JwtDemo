@@ -31,6 +31,7 @@ public enum MgrResponseCode {
     USER_EMAIL_ALREADY_EXISTS("0203","用戶EMAIL已存在"),
     USER_ROLES_NOT_FOUND("0204","用戶權限不存在"),
     USER_ALREADY_LOGOUT("0205","用戶已經登出"),
+    USER_PASSWORD_INVALID("0206","用戶密碼錯誤"),
 
     ROLE_NOT_FOUND("0301","DB權限表不存在"),
 
