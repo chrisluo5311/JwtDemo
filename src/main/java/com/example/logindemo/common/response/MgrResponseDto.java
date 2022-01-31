@@ -14,6 +14,7 @@ public class MgrResponseDto<T> {
     public static <T> MgrResponseDto<T> success(T data) {
         MgrResponseDto<T> dto = new MgrResponseDto<>();
         dto.setCode(MgrResponseCode.SUCCESS.getCode());
+        dto.setMessage(MgrResponseCode.SUCCESS.getMessage());
         dto.setData(data);
         return dto;
     }

@@ -37,10 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -49,7 +46,7 @@ import java.util.stream.Collectors;
  *
  * @author chris
  * @Date 2022/02/29
- * */
+ */
 @Slf4j
 @Service
 public class LoginServiceImpl implements LoginService {
@@ -81,17 +78,17 @@ public class LoginServiceImpl implements LoginService {
     public JwtResponse loginMember(LoginRequest loginRequest) {
         String userName = loginRequest.getUserName();
         String password = loginRequest.getPassword();
-        log.info("{} 用戶:{} 發送登入請求",LOG_PREFIX,userName);
+        log.info("{} 用戶:{} 發送登入請求", LOG_PREFIX, userName);
         //驗證 用戶名與密碼
         Authentication authentication = null;
-        try{
+        try {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
         } catch (DisabledException e) {
-            log.error("用戶名:{}登入失败 USER_DISABLED : {}",userName, e.getMessage());
-            throw new UserException(MgrResponseCode.USER_NOT_FOUND,new Object[]{userName});
+            log.error("用戶名:{}登入失败 USER_DISABLED : {}", userName, e.getMessage());
+            throw new UserException(MgrResponseCode.USER_NOT_FOUND, new Object[]{userName});
         } catch (BadCredentialsException e) {
-            log.error("用戶名:{}登入失败 INVALID_CREDENTIALS : {}",userName,e.getMessage());
-            throw new UserException(MgrResponseCode.USER_PASSWORD_INVALID,new Object[]{userName});
+            log.error("用戶名:{}登入失败 INVALID_CREDENTIALS : {}", userName, e.getMessage());
+            throw new UserException(MgrResponseCode.USER_PASSWORD_INVALID, new Object[]{userName});
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -100,10 +97,10 @@ public class LoginServiceImpl implements LoginService {
         String jwtToken = jwtUtils.generateJwtToken(userDetails);
         //角色
         List<String> roles = userDetails.getAuthorities().stream()
-                                                         .map(item -> item.getAuthority())
-                                                         .collect(Collectors.toList());
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-        log.info("{} 用戶:{} 擁有角色:{} 登入成功",LOG_PREFIX,userName,roles);
+        log.info("{} 用戶:{} 擁有角色:{} 登入成功", LOG_PREFIX, userName, roles);
         //回傳JwtResponse
         return new JwtResponse(jwtToken, refreshToken.getToken(), userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
     }
@@ -111,63 +108,57 @@ public class LoginServiceImpl implements LoginService {
     @Transactional
     @Override
     public User signUp(SignupRequest signUpRequest, HttpServletRequest servletRequest) {
-        String ip       = IpUtils.getIpAddr(servletRequest);
+        String ip = IpUtils.getIpAddr(servletRequest);
         String userName = signUpRequest.getUsername();
-        String email    = signUpRequest.getEmail();
-        log.info("{} 新用戶:{} 註冊帳號",LOG_PREFIX,userName);
+        String email = signUpRequest.getEmail();
+        log.info("{} 新用戶:{} 註冊帳號", LOG_PREFIX, userName);
         if (userRepository.existsByUsername(userName)) {
-            throw new UserException(MgrResponseCode.USER_ALREADY_EXISTS,new Object[]{userName});
+            throw new UserException(MgrResponseCode.USER_ALREADY_EXISTS, new Object[]{userName});
         }
 
         if (userRepository.existsByEmail(email)) {
-            throw new UserException(MgrResponseCode.USER_EMAIL_ALREADY_EXISTS,new Object[]{email});
+            throw new UserException(MgrResponseCode.USER_EMAIL_ALREADY_EXISTS, new Object[]{email});
         }
 
         //創建用戶 狀態:預設 1:啟用
         User user = User.builder()
-                        .username(signUpRequest.getUsername())
-                        .email(signUpRequest.getEmail())
-                        .password(encoder.encode(signUpRequest.getPassword()))
-                        .ip(ip)
-                        .status(UserStatus.ENABLE.getCode())
-                        .createTime(new Date())
-                        .build();
-        //取的註冊腳色
-        Set<String> strRoles = signUpRequest.getRole();
-        Set<Role>   roles    = new HashSet<>();
-
+                .username(signUpRequest.getUsername())
+                .email(signUpRequest.getEmail())
+                .password(encoder.encode(signUpRequest.getPassword()))
+                .ip(ip)
+                .status(UserStatus.ENABLE.getCode())
+                .createTime(new Date())
+                .build();
+        //取得註冊腳色
+        Set<Integer> intRoles = signUpRequest.getRole();
         //未輸入權限一律預設為一般使用者
-        if (strRoles == null) {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                    .orElseThrow(() -> new UserException(MgrResponseCode.ROLE_NOT_FOUND,new Object[]{ERole.ROLE_USER}));
-
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case RoleConstants.ROLE_ADMIN:
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new UserException(MgrResponseCode.ROLE_NOT_FOUND,new Object[]{ERole.ROLE_ADMIN}));
-                        roles.add(adminRole);
-
-                        break;
-                    case RoleConstants.ROLE_MOD:
-                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
-                                .orElseThrow(() -> new UserException(MgrResponseCode.ROLE_NOT_FOUND,new Object[]{ERole.ROLE_MODERATOR}));
-                        roles.add(modRole);
-
-                        break;
-                    default:
-                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                                .orElseThrow(() -> new UserException(MgrResponseCode.ROLE_NOT_FOUND,new Object[]{ERole.ROLE_USER}));
-                        roles.add(userRole);
-                }
-            });
-        }
+        Set<Role> roles = new HashSet<>(Optional.ofNullable(intRoles.stream().map(r -> {
+                    switch (r) {
+                        case RoleConstants.ROLE_ADMIN_INT:
+                            Role adminRole = roleRepository.findById(ERole.ROLE_ADMIN.getRoleId())
+                                    .orElseThrow(() -> new UserException(MgrResponseCode.ROLE_NOT_FOUND, new Object[]{ERole.ROLE_ADMIN}));
+                            return adminRole;
+                        case RoleConstants.ROLE_MOD_INT:
+                            Role modRole = roleRepository.findById(ERole.ROLE_MODERATOR.getRoleId())
+                                    .orElseThrow(() -> new UserException(MgrResponseCode.ROLE_NOT_FOUND, new Object[]{ERole.ROLE_MODERATOR}));
+                            return modRole;
+                        default:
+                            Role userRole = roleRepository.findById(ERole.ROLE_USER.getRoleId())
+                                    .orElseThrow(() -> new UserException(MgrResponseCode.ROLE_NOT_FOUND, new Object[]{ERole.ROLE_USER}));
+                            return userRole;
+                    }
+                }).collect(Collectors.toSet()))
+                .orElseGet(() -> {
+                    Set<Role> roles2 = new HashSet<>();
+                    Role userRole = roleRepository.findById(ERole.ROLE_USER.getRoleId())
+                            .orElseThrow(() -> new UserException(MgrResponseCode.ROLE_NOT_FOUND, new Object[]{ERole.ROLE_USER}));
+                    roles2.add(userRole);
+                    return roles2;
+                }));
 
         user.setRoles(roles);
         User userResult = userRepository.save(user);
-        log.info("{} 新用戶:{} 註冊成功",LOG_PREFIX,userResult.toString());
+        log.info("{} 新用戶:{} 註冊成功", LOG_PREFIX, userResult.toString());
         return userResult;
     }
 
@@ -182,33 +173,34 @@ public class LoginServiceImpl implements LoginService {
                     String token = jwtUtils.generateTokenFromUsername(user.getUsername());
                     return new TokenRefreshResponse(token, requestRefreshToken);
                 })
-                .orElseThrow(() -> new TokenRefreshException(MgrResponseCode.REFRESH_TOKEN_NOT_EXISTS_IN_DB,requestRefreshToken));
+                .orElseThrow(() -> new TokenRefreshException(MgrResponseCode.REFRESH_TOKEN_NOT_EXISTS_IN_DB, requestRefreshToken));
     }
 
     @Override
-    public void logOutUser(LogOutRequest logOutRequest,HttpServletRequest servletRequest) {
+    public void logOutUser(LogOutRequest logOutRequest, HttpServletRequest servletRequest) {
         Long userId = logOutRequest.getUserId();
         User user = userRepository.findById(userId)
-                .orElseThrow(()->new UserException(MgrResponseCode.USER_NOT_FOUND,new Object[]{userId}));
+                .orElseThrow(() -> new UserException(MgrResponseCode.USER_NOT_FOUND, new Object[]{userId}));
         refreshTokenService.deleteByUserId(user);
         String jwtToken = parseJwt(servletRequest);
-        redisTemplate.opsForValue().set(jwtToken,jwtToken,JwtConstants.LOGOUT_EXPIRATION_TIME, TimeUnit.HOURS);
-        log.info("{} 用戶:{} 登出裝置成功",LOG_PREFIX,user.getUsername());
+        redisTemplate.opsForValue().set(jwtToken, jwtToken, JwtConstants.LOGOUT_EXPIRATION_TIME, TimeUnit.HOURS);
+        log.info("{} 用戶:{} 登出裝置成功", LOG_PREFIX, user.getUsername());
     }
 
     /**
      * 從 HttpServletRequest 的 Header 取 Authorization 的值<br>
      * 並截斷 Bearer 字段只取後方的token
+     *
      * @param request HttpServletRequest
      * @return jwt token
-     * */
-    private String parseJwt(HttpServletRequest request){
+     */
+    private String parseJwt(HttpServletRequest request) {
         String jwtToken = null;
 
         final String requestTokenHeader = request.getHeader(JwtConstants.AUTHORIZATION_CODE_KEY);
 
         // JWT Token在"Bearer token"里 移除Bearer字段只取Token
-        if(requestTokenHeader!=null){
+        if (requestTokenHeader != null) {
             if (requestTokenHeader.startsWith(JwtConstants.BEARER_CODE_KEY)) {
                 jwtToken = requestTokenHeader.substring(7);
             } else {
