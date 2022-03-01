@@ -8,8 +8,10 @@ import com.example.logindemo.common.constant.SessionConstants;
 import com.example.logindemo.common.session.SessionEntity;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import com.example.logindemo.exception.user.UserException;
+import com.example.logindemo.exception.user.UserJwtException;
 import com.example.logindemo.security.services.UserDetailsImpl;
 import com.example.logindemo.security.services.UserDetailsServiceImpl;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,11 +27,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * 過濾每一次請求<br>
+ * 若api有註冊則跳過驗證jwt token
+ *
+ * @author chris
+ * */
 @Slf4j
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Resource
     JwtUtils jwtUtils;
+
+    @Resource
+    SessionUtils sessionUtils;
 
     @Resource
     private UserDetailsServiceImpl userDetailsService;
@@ -47,52 +58,34 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
         try{
             //取 JWT
-            String jwt = parseJwt(request);
+            String jwt = jwtUtils.parseJwt(request);
             if( jwt!=null){
                 String userName = jwtUtils.getUserNameFromJwtToken(jwt);
                 //查看 redis 登出黑名單
                 if(redisTemplate.hasKey(jwt)){
-                    throw new UserException(MgrResponseCode.USER_ALREADY_LOGOUT,new Object[]{userName});
+                    throw new UserJwtException(MgrResponseCode.USER_ALREADY_LOGOUT,new Object[]{userName});
                 }
                 if(jwtUtils.validateJwtToken(jwt,request)){
                     UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    UserDetailsImpl userDetails1 = (UserDetailsImpl) userDetails;
                     SessionEntity sessionEntity = SessionEntity.builder()
+                                                               .userId(userDetails1.getId())
                                                                .userName(userName)
                                                                .ip(ip)
                                                                .build();
                     //request header中設置session
-                    SessionUtils.pushSessionToRequest(sessionEntity,request);
+                    sessionUtils.pushSessionToRequest(sessionEntity,request);
                 }
             }
-        }catch (Exception e){
+        } catch (ExpiredJwtException e) {
+            request.setAttribute(JwtConstants.JWT_EXPIRED_CODE_KEY ,e.getMessage());
+        } catch (Exception e){
             log.error("無法設置用戶權限: {}",e);
         }
         filterChain.doFilter(request, response);
     }
 
-
-    /**
-     * 從 HttpServletRequest 的 Header 取 Authorization 的值<br>
-     * 並截斷 Bearer 字段只取後方的token
-     * @param request HttpServletRequest
-     * @return jwt token
-     * */
-    private String parseJwt(HttpServletRequest request){
-        String jwtToken = null;
-
-        final String requestTokenHeader = request.getHeader(JwtConstants.AUTHORIZATION_CODE_KEY);
-
-        // JWT Token在"Bearer token"里 移除Bearer字段只取Token
-        if(requestTokenHeader!=null){
-            if (requestTokenHeader.startsWith(JwtConstants.BEARER_CODE_KEY)) {
-                jwtToken = requestTokenHeader.substring(7);
-            } else {
-                log.warn("JWT Token 不在Bearer里面");
-            }
-        }
-        return jwtToken;
-    }
 }

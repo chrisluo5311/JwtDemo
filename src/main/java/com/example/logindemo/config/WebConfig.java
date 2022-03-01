@@ -30,6 +30,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Resource
     UserRepository userRepository;
 
+    @Resource
+    SessionUtils sessionUtils;
 
     public void addInterceptors(InterceptorRegistry interceptorRegistry){
         interceptorRegistry
@@ -42,7 +44,7 @@ public class WebConfig implements WebMvcConfigurer {
                         log.info(" IP來源:{}: 請求路徑:{}?{}",IpUtils.getIpAddr(request),
                                                             request.getRequestURI(),
                                                             request.getQueryString());
-                        SessionEntity sessionEntity = SessionUtils.pullSessionFromRequest(request);
+                        SessionEntity sessionEntity = sessionUtils.pullSessionFromRequest(request);
                         String userName = sessionEntity.getUserName();
                         User user = userRepository.findByUsername(userName)
                                 .orElseThrow(()->new UserException(MgrResponseCode.USER_NOT_FOUND,new Object[]{userName}));
@@ -63,10 +65,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/v2/api-docs")
                 .excludePathPatterns("/css/**")
                 // -- swagger end --
-                .excludePathPatterns("/api/auth/**")
-                .excludePathPatterns("/api/test/**")
-                .excludePathPatterns("/members")
+                .excludePathPatterns("/api/auth/login")
+                .excludePathPatterns("/api/auth/signup")
+                .excludePathPatterns("/api/auth/refreshToken")
+                .excludePathPatterns("/login")
                 .excludePathPatterns("/index")
+                .excludePathPatterns("/inner/session")
+                .excludePathPatterns("/tg/receive")
                 .addPathPatterns("/**");
     }
 

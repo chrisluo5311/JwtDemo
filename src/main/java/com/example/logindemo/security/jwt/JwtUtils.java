@@ -93,7 +93,7 @@ public class JwtUtils {
      * @return 用戶名
      * */
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+       return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
     /**
@@ -112,14 +112,36 @@ public class JwtUtils {
             log.error("無效的 JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
             log.error("JWT token 超時: {}", e.getMessage());
-            servletRequest.setAttribute(JwtConstants.JWT_EXPIRED_CODE_KEY ,e.getCause());
+            servletRequest.setAttribute(JwtConstants.JWT_EXPIRED_CODE_KEY ,e.getMessage());
         } catch (UnsupportedJwtException e) {
             log.error("JWT token 不支持: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
             log.error("JWT claims string 為空: {}", e.getMessage());
         }
-
         return false;
+    }
+
+    /**
+     * 從 HttpServletRequest 的 Header 取 Authorization 的值<br>
+     * 並截斷 Bearer 字段只取後方的token
+     *
+     * @param request HttpServletRequest
+     * @return jwt token
+     */
+    public String parseJwt(HttpServletRequest request) {
+        String jwtToken = null;
+
+        final String requestTokenHeader = request.getHeader(JwtConstants.AUTHORIZATION_CODE_KEY);
+
+        // JWT Token在"Bearer token"里 移除Bearer字段只取Token
+        if (requestTokenHeader != null) {
+            if (requestTokenHeader.startsWith(JwtConstants.BEARER_CODE_KEY)) {
+                jwtToken = requestTokenHeader.substring(7);
+            } else {
+                log.warn("JWT Token 不在Bearer里面");
+            }
+        }
+        return jwtToken;
     }
 
 }

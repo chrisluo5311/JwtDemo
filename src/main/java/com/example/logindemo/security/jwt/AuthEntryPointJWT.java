@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
@@ -35,9 +36,12 @@ public class AuthEntryPointJWT implements AuthenticationEntryPoint {
         if(request.getAttribute(JwtConstants.JWT_EXPIRED_CODE_KEY)!=null){
             log.error("ip:{} jwt token 已超时，需重新登入",ip);
             //response body
-            final UserJwtException userJwtException = new UserJwtException(MgrResponseCode.JWT_TOKEN_EXPIRED, new Object[]{request.getServletPath()});
-
-            objectMapper.writeValue(response.getOutputStream(), userJwtException);
+            final Map<String, Object> body = new LinkedHashMap<>();
+            body.put("code", MgrResponseCode.JWT_TOKEN_EXPIRED.getCode());
+            body.put("message", MgrResponseCode.JWT_TOKEN_EXPIRED.getMessage());
+            body.put("error", "Token超時");
+            body.put("path", request.getServletPath());
+            objectMapper.writeValue(response.getOutputStream(), body);
             return;
         }
 
@@ -45,8 +49,11 @@ public class AuthEntryPointJWT implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         //response body
-        final UserJwtException userJwtException = new UserJwtException(String.valueOf(HttpServletResponse.SC_UNAUTHORIZED), new Object[]{request.getServletPath()},authException.getMessage());
-
-        objectMapper.writeValue(response.getOutputStream(), userJwtException);
+        final Map<String, Object> body = new LinkedHashMap<>();
+        body.put("code", HttpServletResponse.SC_UNAUTHORIZED);
+        body.put("message", authException.getMessage());
+        body.put("error", "未經授權");
+        body.put("path", request.getServletPath());
+        objectMapper.writeValue(response.getOutputStream(), body);
     }
 }

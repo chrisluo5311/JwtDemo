@@ -5,6 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Session
+ *
+ * @author chris
+ * */
 @Data
 @Builder
 @NoArgsConstructor

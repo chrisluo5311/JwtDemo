@@ -2,8 +2,8 @@ package com.example.logindemo.controllers.login;
 
 import com.example.logindemo.common.constant.JwtConstants;
 import com.example.logindemo.common.response.MgrResponseDto;
+import com.example.logindemo.controllers.core.BaseController;
 import com.example.logindemo.models.User;
-import com.example.logindemo.payLoad.request.LogOutRequest;
 import com.example.logindemo.payLoad.request.LoginRequest;
 import com.example.logindemo.payLoad.request.SignupRequest;
 import com.example.logindemo.payLoad.request.TokenRefreshRequest;
@@ -13,7 +13,10 @@ import com.example.logindemo.service.LoginService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +32,7 @@ import javax.validation.Valid;
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AuthController extends BaseController {
 
     @Resource
     LoginService loginService;
@@ -37,6 +40,7 @@ public class AuthController {
     @ApiOperation(value = "用户登入", httpMethod = "POST")
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     public MgrResponseDto<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest,
+                                                        HttpServletRequest servletRequest,
                                                         HttpServletResponse servletResponse) {
         JwtResponse jwtResponse = loginService.loginMember(loginRequest);
         //在header中設置jwtToken
@@ -47,16 +51,15 @@ public class AuthController {
     @ApiOperation(value = "用户註冊", httpMethod = "POST")
     @RequestMapping(value = "/signup",method = RequestMethod.POST)
     public MgrResponseDto<User> registerUser(@Valid @RequestBody SignupRequest signUpRequest,
-                                          HttpServletRequest servletRequest) {
+                                            HttpServletRequest servletRequest) {
         User user = loginService.signUp(signUpRequest,servletRequest);
         return MgrResponseDto.success(user);
     }
 
     @ApiOperation(value = "用户登出", httpMethod = "GET")
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
-    public MgrResponseDto<?> logoutUser(@Valid @RequestParam LogOutRequest logOutRequest,
-                                        HttpServletRequest servletRequest) {
-        loginService.logOutUser(logOutRequest,servletRequest);
+    public MgrResponseDto<?> logoutUser(HttpServletRequest servletRequest) {
+        loginService.logOutUser(getSession(),servletRequest);
         return MgrResponseDto.success();
     }
 

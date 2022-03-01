@@ -48,7 +48,7 @@
                 <a class="nav-link active" aria-current="page" href="#">Home</a>
                 <!--        <a class="nav-link" href="#">Features</a>-->
                 <!--        <a class="nav-link" href="#">Contact</a>-->
-                <a class="nav-link" href="<c:url value='/members' />">Sing in</a>
+                <a class="nav-link" href="<c:url value='/login' />">Sing in</a>
             </nav>
         </div>
     </header>

@@ -2,7 +2,17 @@ package com.example.logindemo.common.response;
 
 
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
+import lombok.ToString;
 
+/**
+ * 響應類<br>
+ * 1. code
+ * 2. message
+ * 3. data
+ *
+ * @author chris
+ * */
+@ToString
 public class MgrResponseDto<T> {
 
     private String code;
@@ -14,6 +24,7 @@ public class MgrResponseDto<T> {
     public static <T> MgrResponseDto<T> success(T data) {
         MgrResponseDto<T> dto = new MgrResponseDto<>();
         dto.setCode(MgrResponseCode.SUCCESS.getCode());
+        dto.setMessage(MgrResponseCode.SUCCESS.getMessage());
         dto.setData(data);
         return dto;
     }

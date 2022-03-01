@@ -13,14 +13,51 @@
 <head>
     <meta charset="UTF-8">
     <title>{ ㄏMembers; }</title>
-    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
-<%--    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>--%>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="<c:url value='/webjars/jquery/3.5.1/jquery.js'/>"></script>
+    <link rel='stylesheet' href="<c:url value='/webjars/bootstrap/4.6.0/css/bootstrap.min.css' />" />
+    <script type="text/javascript" src="<c:url value='/webjars/bootstrap/4.6.0/js/bootstrap.min.js'/>"></script>
 </head>
 <style>
 
 </style>
+
+<script>
+    $(document).ready(function () {
+        var userName = $("#userName").val();
+        var userPwd  = $("#password").val();
+        var data = {
+            "userName":userName,
+            "password":userPwd
+        };
+        $("#submitLogin").click(function (e) {
+            e.preventDefault();
+            $.ajax({
+                method:"POST",
+                url:"/api/auth/login",
+                contentType: 'application/json; charset=utf-8',
+                data : JSON.stringify(data),
+                dataType:'JSON',
+                success: function (result) {
+                    console.log(result);
+                    if(result.code == "0000"){
+                        window.location.href = ("http://localhost:8090/loginSuccess");
+                    } else {
+                        window.alert(result.message);
+                    }
+                },
+                error: function (result) {
+                    console.log(result);
+                    window.alert(result.message);
+                }
+            });
+        });
+
+
+
+    });
+</script>
+
 <body>
 
 <section class="vh-100" style="background-color: #333">
@@ -33,13 +70,13 @@
                         <h3 class="mb-5" style="font-weight: bold">Welcome</h3>
 
                         <div class="form-outline mb-4">
-                            <input type="email" id="typeEmailX-2" class="form-control form-control-lg" />
-                            <label class="form-label" for="typeEmailX-2" style="font-weight: bold;font-size: large">Email</label>
+                            <input type="email" id="userName" class="form-control form-control-lg" />
+                            <label class="form-label" for="userName" style="font-weight: bold;font-size: large">User</label>
                         </div>
 
                         <div class="form-outline mb-4">
-                            <input type="password" id="typePasswordX-2" class="form-control form-control-lg" />
-                            <label class="form-label" for="typePasswordX-2" style="font-weight: bold;font-size: large">Password</label>
+                            <input type="password" id="password" class="form-control form-control-lg" />
+                            <label class="form-label" for="password" style="font-weight: bold;font-size: large">Password</label>
                         </div>
 
                         <!-- Checkbox -->
@@ -53,7 +90,7 @@
                             <label class="form-check-label" for="form1Example3"> Remember password </label>
                         </div>
 
-                        <button class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
+                        <button class="btn btn-primary btn-lg btn-block" type="submit" id="submitLogin">Login</button>
 
                         <hr class="my-4">
 
@@ -69,9 +106,6 @@
 </section>
 
 
-<script>
-
-</script>
 
 </body>
 </html>

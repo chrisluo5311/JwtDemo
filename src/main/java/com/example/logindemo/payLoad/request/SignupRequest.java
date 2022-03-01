@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.Email;
@@ -32,7 +33,8 @@ public class SignupRequest {
     @Email
     private String email;
 
-    private Set<String> role;
+    @ApiModelProperty(value = "角色(1:user 2:mod 3:admin) 不填將預設1",example = "1")
+    private Set<Integer> role;
 
     @ApiModelProperty(value = "密碼")
     @NotBlank

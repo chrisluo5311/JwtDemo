@@ -22,16 +22,17 @@ public enum MgrResponseCode {
     REFRESH_TOKEN_EXPIRED("0007","Refresh Token 已超時，請重新獲取"),
     REFRESH_TOKEN_NOT_EXISTS_IN_DB("0008","Refresh Token 不存在 DB"),
     REQUEST_WITHOUT_TOKEN("0009","請求中未帶有Session Token"),
+    REQUEST_ACCESS_DENIED("0010","非法請求權限，拒絕存取"),
 
     PARAM_NOT_FOUND("0101", "參數不存在"),
     PARAM_INVALID("0102", "無效的參數"),
 
-    USER_NOT_FOUND("0201","用戶不存在"),
+    USER_NOT_FOUND("0201","查無用戶"),
     USER_ALREADY_EXISTS("0202","用戶已存在"),
     USER_EMAIL_ALREADY_EXISTS("0203","用戶EMAIL已存在"),
     USER_ROLES_NOT_FOUND("0204","用戶權限不存在"),
     USER_ALREADY_LOGOUT("0205","用戶已經登出"),
-    USER_PASSWORD_INVALID("0206","用戶密碼錯誤"),
+    USER_PASSWORD_INVALID("0206","用戶或密碼錯誤"),
 
     ROLE_NOT_FOUND("0301","DB權限表不存在"),
 
