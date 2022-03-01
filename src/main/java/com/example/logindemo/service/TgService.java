@@ -1,19 +1,51 @@
 package com.example.logindemo.service;
 
+import com.example.logindemo.common.response.MgrResponseDto;
+import com.example.logindemo.models.User;
+import com.example.logindemo.repository.UserRepository;
 import com.example.logindemo.tgbot.enums.TelegramInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Optional;
 
+/**
+ * tg service層
+ *
+ * @author chris
+ * */
 @Slf4j
 @Service
 public class TgService {
 
+    @Resource
+    UserRepository userRepository;
+
+    /**
+     * 接收tg指令並做出相對應的動作
+     *
+     * @param message 訊息
+     * */
+    public void commandInstruct(String message){
+        switch (message){
+            case "查詢用戶資訊":
+                List<User> userList = userRepository.findAll();
+                sendMessage(MgrResponseDto.success(userList));
+                break;
+            default:
+                sendMessage(message);
+        }
+    }
+
+    public void sendMessage(MgrResponseDto mgrResponseDto){
+        sendMessage(mgrResponseDto.toString());
+    }
 
     public void sendMessage(String message){
         sendMessage(TelegramInfo.JWT_DEMO_ERROR_BOT,null,message);

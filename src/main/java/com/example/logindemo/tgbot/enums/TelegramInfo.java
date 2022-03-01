@@ -8,7 +8,8 @@ package com.example.logindemo.tgbot.enums;
  * @author chris
  * */
 public enum TelegramInfo {
-    JWT_DEMO_ERROR_BOT("5017095330:AAFEe0HlyiwhKyimgxwXw_ym_KUZiSa3KZo", "1966832279","chrishamburger");
+    JWT_DEMO_ERROR_BOT("5017095330:AAFEe0HlyiwhKyimgxwXw_ym_KUZiSa3KZo", "1966832279","chrishamburger"),
+    JWT_DEMO_ERROR_BOT_FOR_JAVA_GROUP("5017095330:AAFEe0HlyiwhKyimgxwXw_ym_KUZiSa3KZo", "-574703697","chrishamburger");
 
     /** tg bot token */
     private String token;
