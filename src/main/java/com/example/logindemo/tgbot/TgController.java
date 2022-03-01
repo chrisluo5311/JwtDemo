@@ -29,7 +29,7 @@ public class TgController {
         log.info("接收tg讯习:{}",telegramMessage.toString());
         Map<String, Object> map = (Map<String, Object>) telegramMessage.getMessage();
         
-        tgService.sendMessage((String) map.get("text"));
+        tgService.commandInstruct((String) map.get("text"));
     }
 
 
