@@ -13,9 +13,14 @@ public class FindViewController {
         return "index";
     }
 
-    @GetMapping(value = "/members")
-    public String members(){
-        return "members";
+    @GetMapping(value = "/login")
+    public String login(){
+        return "login";
+    }
+
+    @GetMapping(value = "/loginSuccess")
+    public String loginSuccess(){
+        return "loginSuccess";
     }
 
 }

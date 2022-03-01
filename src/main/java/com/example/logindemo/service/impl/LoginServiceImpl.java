@@ -75,6 +75,14 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     JwtUtils jwtUtils;
 
+    /**
+     * 登入<br>
+     * jwt token 时效为1小时<br>
+     * refresh token 时效为24小时
+     *
+     * @param loginRequest 登入請求
+     * @return JwtResponse
+     * */
     @Override
     public JwtResponse loginMember(LoginRequest loginRequest) {
         String userName = loginRequest.getUserName();
@@ -106,12 +114,20 @@ public class LoginServiceImpl implements LoginService {
         return new JwtResponse(jwtToken, refreshToken.getToken(), userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
     }
 
+    /**
+     * 注册<br>
+     * 未輸入權限一律預設為一般使用者
+     *
+     * @param signUpRequest 注册请求
+     * @param servletRequest HttpServletRequest
+     * @return User 用户
+     * */
     @Transactional
     @Override
     public User signUp(SignupRequest signUpRequest, HttpServletRequest servletRequest) {
-        String ip = IpUtils.getIpAddr(servletRequest);
+        String ip       = IpUtils.getIpAddr(servletRequest);
+        String email    = signUpRequest.getEmail();
         String userName = signUpRequest.getUsername();
-        String email = signUpRequest.getEmail();
         log.info("{} 新用戶:{} 註冊帳號", LOG_PREFIX, userName);
         if (userRepository.existsByUsername(userName)) {
             throw new UserException(MgrResponseCode.USER_ALREADY_EXISTS, new Object[]{userName});
@@ -123,13 +139,13 @@ public class LoginServiceImpl implements LoginService {
 
         //創建用戶 狀態:預設 1:啟用
         User user = User.builder()
-                .username(signUpRequest.getUsername())
-                .email(signUpRequest.getEmail())
-                .password(encoder.encode(signUpRequest.getPassword()))
-                .ip(ip)
-                .status(UserStatus.ENABLE.getCode())
-                .createTime(new Date())
-                .build();
+                        .username(signUpRequest.getUsername())
+                        .email(signUpRequest.getEmail())
+                        .password(encoder.encode(signUpRequest.getPassword()))
+                        .ip(ip)
+                        .status(UserStatus.ENABLE.getCode())
+                        .createTime(new Date())
+                        .build();
         //取得註冊腳色
         Set<Integer> intRoles = signUpRequest.getRole();
         //未輸入權限一律預設為一般使用者
@@ -159,10 +175,16 @@ public class LoginServiceImpl implements LoginService {
 
         user.setRoles(roles);
         User userResult = userRepository.save(user);
-        log.info("{} 新用戶:{} 註冊成功", LOG_PREFIX, userResult.toString());
+        log.info("{} 新用戶:{} 註冊成功", LOG_PREFIX, userResult.getUsername());
         return userResult;
     }
 
+    /**
+     * 獲得新token
+     *
+     * @param refreshRequest Token Refresh 請求
+     * @return TokenRefreshResponse
+     * */
     @Transactional
     @Override
     public TokenRefreshResponse refreshToken(TokenRefreshRequest refreshRequest) {
@@ -177,37 +199,22 @@ public class LoginServiceImpl implements LoginService {
                 .orElseThrow(() -> new TokenRefreshException(MgrResponseCode.REFRESH_TOKEN_NOT_EXISTS_IN_DB, requestRefreshToken));
     }
 
+    /**
+     * 登出用戶
+     *
+     * @param servletRequest HttpServletRequest
+     * @param sessionEntity Session
+     * */
     @Override
     public void logOutUser(SessionEntity sessionEntity, HttpServletRequest servletRequest) {
         Long userId = sessionEntity.getUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(MgrResponseCode.USER_NOT_FOUND, new Object[]{userId}));
         refreshTokenService.deleteByUserId(user);
-        String jwtToken = parseJwt(servletRequest);
+        String jwtToken = jwtUtils.parseJwt(servletRequest);
         redisTemplate.opsForValue().set(jwtToken, jwtToken, JwtConstants.LOGOUT_EXPIRATION_TIME, TimeUnit.HOURS);
         log.info("{} 用戶:{} 登出裝置成功", LOG_PREFIX, user.getUsername());
     }
 
-    /**
-     * 從 HttpServletRequest 的 Header 取 Authorization 的值<br>
-     * 並截斷 Bearer 字段只取後方的token
-     *
-     * @param request HttpServletRequest
-     * @return jwt token
-     */
-    private String parseJwt(HttpServletRequest request) {
-        String jwtToken = null;
 
-        final String requestTokenHeader = request.getHeader(JwtConstants.AUTHORIZATION_CODE_KEY);
-
-        // JWT Token在"Bearer token"里 移除Bearer字段只取Token
-        if (requestTokenHeader != null) {
-            if (requestTokenHeader.startsWith(JwtConstants.BEARER_CODE_KEY)) {
-                jwtToken = requestTokenHeader.substring(7);
-            } else {
-                log.warn("JWT Token 不在Bearer里面");
-            }
-        }
-        return jwtToken;
-    }
 }

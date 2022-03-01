@@ -1,13 +1,16 @@
 package com.example.logindemo.controllers.SessionTestController;
 
 import com.example.logindemo.common.constant.InnerRouteConsts;
+import com.example.logindemo.common.response.MgrResponseDto;
 import com.example.logindemo.common.session.SessionEntity;
+import com.example.logindemo.controllers.core.BaseController;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import com.example.logindemo.exception.user.UserException;
 import com.example.logindemo.models.User;
 import com.example.logindemo.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,13 +20,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import java.util.Base64;
 
 @Api(tags = "內部測試Api")
-@RestController
 @Slf4j
+@RestController
 @RequestMapping(InnerRouteConsts.PATH)
-public class SessionTestController {
+public class SessionTestController extends BaseController {
 
     @Value("${knife4j.production:false}")
     private boolean isProd;
@@ -47,4 +51,13 @@ public class SessionTestController {
         byte[] encode = Base64.getEncoder().encode(writeValueAsString.getBytes());
         return new String(encode);
     }
+
+    @ApiOperation(value = "獲取HttpSession",httpMethod = "GET")
+    @GetMapping(value = "/getHttpSession")
+    public MgrResponseDto getHttpSessionInfo(){
+        log.info("httpSession id:{} AttributeNames:{} isNew:{}",
+                getHttpSession().getId(),getHttpSession().getAttributeNames(),getHttpSession().isNew());
+        return MgrResponseDto.success();
+    }
+
 }

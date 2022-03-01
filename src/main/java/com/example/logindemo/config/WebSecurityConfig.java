@@ -1,5 +1,6 @@
 package com.example.logindemo.config;
 
+import com.example.logindemo.controllers.logout.LogoutHandler;
 import com.example.logindemo.security.jwt.AuthEntryPointJWT;
 import com.example.logindemo.security.jwt.AuthTokenFilter;
 import com.example.logindemo.security.services.UserDetailsServiceImpl;
@@ -52,6 +53,10 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+
+    @Resource
+    public LogoutHandler logoutHandler;
+
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers("/v2/api-docs",
@@ -73,16 +78,17 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(authEntryPointJWT).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()//定義哪些url需要被保護
-                .antMatchers("/").permitAll()
-                //前端頁面start
-                .antMatchers("/members").permitAll()
-                .antMatchers("/index").permitAll()
-                //前端頁面end
-                .antMatchers("/api/auth/login").permitAll()
-                .antMatchers("/api/auth/signup").permitAll()
-                .antMatchers("/api/auth/refreshToken").permitAll()
-                .antMatchers("/inner/session").permitAll()
-                .anyRequest().authenticated();
+                .antMatchers("/",
+                        "/login",
+                        "/index",
+                        "/api/auth/**",
+                        "/tg/receive",
+                        "/inner/**").permitAll()
+                .anyRequest().authenticated().and()
+                .logout()
+                .logoutUrl("/api/auth/userLogout")
+                .addLogoutHandler(logoutHandler)
+                .logoutSuccessUrl("/index");
         //加filter
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }

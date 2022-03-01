@@ -1,5 +1,6 @@
 package com.example.logindemo.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
@@ -39,6 +39,7 @@ public class User {
     @Email
     private String email;
 
+    @JsonIgnore
     @NotNull
     @Size(max = 120)
     private String password;

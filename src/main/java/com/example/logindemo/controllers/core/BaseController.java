@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.beans.PropertyEditorSupport;
 import java.util.Date;
 
@@ -50,10 +51,14 @@ public class BaseController {
     }
 
     /**
-     * 獲取session
+     * 獲取SessionEntity
      */
     public SessionEntity getSession() {
         return (SessionEntity) getRequest().getAttribute(SessionConstants.SESSION_ATTRIBUTE);
+    }
+
+    public HttpSession getHttpSession(){
+        return getRequest().getSession();
     }
 
     /**

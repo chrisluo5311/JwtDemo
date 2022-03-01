@@ -27,6 +27,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * 過濾每一次請求<br>
+ * 若api有註冊則跳過驗證jwt token
+ *
+ * @author chris
+ * */
 @Slf4j
 public class AuthTokenFilter extends OncePerRequestFilter {
 
@@ -34,13 +40,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     JwtUtils jwtUtils;
 
     @Resource
+    SessionUtils sessionUtils;
+
+    @Resource
     private UserDetailsServiceImpl userDetailsService;
 
     @Resource
     private RedisTemplate<String, String> redisTemplate;
-
-    @Resource
-    SessionUtils sessionUtils;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -52,7 +58,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
         try{
             //取 JWT
-            String jwt = parseJwt(request);
+            String jwt = jwtUtils.parseJwt(request);
             if( jwt!=null){
                 String userName = jwtUtils.getUserNameFromJwtToken(jwt);
                 //查看 redis 登出黑名單
@@ -82,26 +88,4 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-
-    /**
-     * 從 HttpServletRequest 的 Header 取 Authorization 的值<br>
-     * 並截斷 Bearer 字段只取後方的token
-     * @param request HttpServletRequest
-     * @return jwt token
-     * */
-    private String parseJwt(HttpServletRequest request){
-        String jwtToken = null;
-
-        final String requestTokenHeader = request.getHeader(JwtConstants.AUTHORIZATION_CODE_KEY);
-
-        // JWT Token在"Bearer token"里 移除Bearer字段只取Token
-        if(requestTokenHeader!=null){
-            if (requestTokenHeader.startsWith(JwtConstants.BEARER_CODE_KEY)) {
-                jwtToken = requestTokenHeader.substring(7);
-            } else {
-                log.warn("JWT Token 不在Bearer里面");
-            }
-        }
-        return jwtToken;
-    }
 }

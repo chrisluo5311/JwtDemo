@@ -121,6 +121,29 @@ public class JwtUtils {
         return false;
     }
 
+    /**
+     * 從 HttpServletRequest 的 Header 取 Authorization 的值<br>
+     * 並截斷 Bearer 字段只取後方的token
+     *
+     * @param request HttpServletRequest
+     * @return jwt token
+     */
+    public String parseJwt(HttpServletRequest request) {
+        String jwtToken = null;
+
+        final String requestTokenHeader = request.getHeader(JwtConstants.AUTHORIZATION_CODE_KEY);
+
+        // JWT Token在"Bearer token"里 移除Bearer字段只取Token
+        if (requestTokenHeader != null) {
+            if (requestTokenHeader.startsWith(JwtConstants.BEARER_CODE_KEY)) {
+                jwtToken = requestTokenHeader.substring(7);
+            } else {
+                log.warn("JWT Token 不在Bearer里面");
+            }
+        }
+        return jwtToken;
+    }
+
 }
 
 

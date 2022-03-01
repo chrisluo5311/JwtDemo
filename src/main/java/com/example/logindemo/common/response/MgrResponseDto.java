@@ -2,6 +2,7 @@ package com.example.logindemo.common.response;
 
 
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
+import lombok.ToString;
 
 /**
  * 響應類<br>
@@ -11,6 +12,7 @@ import com.example.logindemo.exception.responsecode.MgrResponseCode;
  *
  * @author chris
  * */
+@ToString
 public class MgrResponseDto<T> {
 
     private String code;

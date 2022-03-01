@@ -6,7 +6,9 @@ import com.example.logindemo.exception.base.BaseException;
 import com.example.logindemo.exception.responsecode.MgrResponseCode;
 import com.example.logindemo.exception.tokenrefresh.TokenRefreshException;
 import com.example.logindemo.exception.user.UserJwtException;
+import com.example.logindemo.service.TgService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +39,9 @@ import java.util.stream.Collectors;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
 
+    @Resource
+    TgService tgService;
+
     /**
      * 處理所有自定義 BaseException
      *
@@ -47,9 +53,11 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
 
         MgrResponseDto dto = new MgrResponseDto();
-
         dto.setCode(e.getCode());
         dto.setMessage(e.getMessage());
+        dto.setData(e.getArgs());
+
+        tgService.sendMessage(StringUtils.abbreviate(dto.toString(),200));
 
         return dto;
     }

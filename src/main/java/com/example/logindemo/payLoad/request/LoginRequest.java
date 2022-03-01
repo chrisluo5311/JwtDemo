@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * 登入請求
@@ -18,11 +19,11 @@ import javax.validation.constraints.NotBlank;
 public class LoginRequest {
 
     @ApiModelProperty(value = "用戶名",example = "chris")
-    @NotBlank(message = "請填寫用戶名")
+    @NotNull(message = "請填寫用戶名")
     private String userName;
 
     @ApiModelProperty(value = "密碼")
-    @NotBlank(message = "請填寫密碼")
+    @NotNull(message = "請填寫密碼")
     private String password;
 
 
