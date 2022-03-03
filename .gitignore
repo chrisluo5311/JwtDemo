@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### tg bot ###
+/src/main/java/com/example/logindemo/tgbot/enums/TelegramInfo.java
