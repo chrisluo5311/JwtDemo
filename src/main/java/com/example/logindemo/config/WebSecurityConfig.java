@@ -83,7 +83,8 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
                         "/index",
                         "/api/auth/**",
                         "/tg/receive",
-                        "/inner/**").permitAll()
+                        "/inner/**",
+                        "/websocket/**").permitAll()
                 .anyRequest().authenticated().and()
                 .logout()
                 .logoutUrl("/api/auth/userLogout")
