@@ -15,5 +15,6 @@ public class LogoutHandler implements org.springframework.security.web.authentic
                        Authentication authentication) {
 
         System.out.println("hello from logout");
+
     }
 }
