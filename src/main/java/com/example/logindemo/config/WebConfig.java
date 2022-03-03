@@ -72,6 +72,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/index")
                 .excludePathPatterns("/inner/session")
                 .excludePathPatterns("/tg/receive")
+                .excludePathPatterns("/websocket/**")
                 .addPathPatterns("/**");
     }
 
